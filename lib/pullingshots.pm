@@ -4,12 +4,10 @@ use Dancer ':syntax';
 our $VERSION = '0.1';
 
 get '/' => sub {
-    warning request->base;
     template 'index';
-
 };
 
-get qr{/(rss|atom).*} => sub {
+get qr{/(rdf|rss|atom).*} => sub {
 use XML::Atom::SimpleFeed;
  
  my $feed = XML::Atom::SimpleFeed->new(
@@ -48,7 +46,7 @@ Here's a fresh new pullingshots.ca for the new New Year.
 
 get qr{.*} => sub {
 
-    warning request->base . request->path;
+    warning 'base: ' . request->base . ' path: ' . request->path . ' client: ' . request->user_agent;
     template 'index';
 
 };
