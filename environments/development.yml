@@ -2,12 +2,3 @@ log: "debug"
 warnings: 1
 show_errors: 1
 auto_reload: 0
-plugins:
-      Email:
-        ssl: 1
-        driver: smtp
-        host: smtp.gmail.com
-        port: 465
-        user: andrew.baerg@gmail.com
-        pass: Iw2belu
-        from: development@pullingshots.ca
