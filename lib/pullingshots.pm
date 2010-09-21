@@ -1,10 +1,17 @@
 package pullingshots;
 use Dancer ':syntax';
+use Dancer::Plugin::Database;
 
 our $VERSION = '0.1';
 
 get '/' => sub {
     template 'index';
+};
+
+get '/foo' => sub {
+  my $sth = database->prepare( 'select * from foo' );
+  $sth->execute;
+  template 'index';
 };
 
 get qr{/(rdf|rss|atom).*} => sub {
