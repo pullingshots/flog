@@ -8,7 +8,7 @@ get '/' => sub {
   use File::Fu;
   use DateTime;
 
-  my $dir = File::Fu->dir('./public/posts/');
+  my $dir = File::Fu->dir(config->{appdir} . '/public/posts/');
   my @posts = map { 
     { 
       updated => DateTime->from_epoch( epoch => $_->stat->mtime ),
@@ -36,7 +36,7 @@ get qr{/(rdf|rss|atom).*} => sub {
 
   my $fa = DateTime::Format::Atom->new();
 
-  my $dir = File::Fu->dir('./public/posts/');
+  my $dir = File::Fu->dir(config->{appdir} . '/public/posts/');
   my @posts = map { 
     { 
       updated => DateTime->from_epoch( epoch => $_->stat->mtime ),
@@ -90,7 +90,7 @@ get '/:post' => sub {
   my $error;
   my $file;
   try {
-    $file = File::Fu->file('./public/posts/' . $fn);
+    $file = File::Fu->file(config->{appdir} . '/public/posts/' . $fn);
     $file->stat->mtime;
   } catch {
     status 'not_found';
