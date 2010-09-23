@@ -1,16 +1,8 @@
-<h2>schooled!</h2>
-<p>
-September always feels a lot more like a new year than the New Year does.
-</p>
-<p>
-Here's a fresh new pullingshots.ca for the new New Year. It's running
-on a <a href="http://www.disklessworkstations.com/200118.html?id=pX6fEGwb">new machine</a> (an old Dell machine from 2000 had faithfully served up eureca.ca, baerg.ca, and pullingshots.ca for many years),
-in a <a href="http://www.flickr.com/photos/baergaj/4997509575/">new location</a> (previously in my office),
-with a <a href="http://www.ubuntu.com/desktop">new OS</a> (I am embarrassed to admit I had still been using RedHat 7.2),
-and using a <a href="http://perldancer.org">new framework</a> (I had been using a crufty old php based blog).
-That's a lot of newness!
-</p>
-<p>
-<a href="http://www.flickr.com/photos/baergaj/4943726575/" title="BLEEP! CLICK! ZAP! PING! by baergaj, on Flickr"><img src="http://farm5.static.flickr.com/4122/4943726575_da37debaaa.jpg" width="500" height="334" alt="BLEEP! CLICK! ZAP! PING!" /></a>
-</p>
-<p><i>p.s. If you're feeling nostalgic, here's <a href="http://old.pullingshots.ca/">the old pullingshots.ca</a></i></p>
+[% FOREACH post IN posts %]
+<div class='post'>
+<h2><a style="text-decoration: none;" href="/[% post.slug %]">[% post.title %]</a></h2>
+[% post.content %]
+<p><i>posted at [% post.updated %] by [% post.who %]</i></p>
+</div>
+[% END %]
+

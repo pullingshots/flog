@@ -1,4 +1,5 @@
 layout: "main"
+template: "tiny"
 logger: "file"
 appname: "pullingshots"
 plugins:

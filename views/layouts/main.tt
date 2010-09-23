@@ -7,9 +7,9 @@
 <meta charset=UTF-8" />
 </head>
 <body>
-<h1>pullingshots</h1>
+<h1><a style="text-decoration: none;" href="/">pullingshots</a></h1>
 <div id="content">
-<% content %>
+[% content %]
 </div>
 <footer>
 Powered by <a href="http://perldancer.org/">Dancer</a> 1.1811
