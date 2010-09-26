@@ -16,6 +16,7 @@ sub posts {
   my $fn = shift;
   if ($fn) {
     $fn = uri_decode($fn);
+    $fn =~ s/_/ /g;
     @files = $dir->find(sub{ /\/\Q$fn\E$/ });
   }
   else {
@@ -32,7 +33,9 @@ sub posts {
   } @files;
 
   foreach (@posts) { 
-    $_->{slug} = uri_encode($_->{title}, true);
+    $_->{slug} = $_->{title};
+    $_->{slug} =~ s/\s/_/g;
+    $_->{slug} = uri_encode($_->{slug}, true);
     $_->{html} = markdown($_->{content});
   }
 
