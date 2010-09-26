@@ -2,3 +2,4 @@ logs
 *.db
 *.swp
 *.cache
+public/posts

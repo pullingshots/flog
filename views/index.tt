@@ -1,7 +1,7 @@
 [% FOREACH post IN posts %]
 <div class='post'>
 <h2><a style="text-decoration: none;" href="/[% post.slug %]">[% post.title %]</a></h2>
-[% post.content %]
+[% post.html %]
 <p><i>posted at [% post.updated %] by [% post.who %]</i></p>
 </div>
 [% END %]

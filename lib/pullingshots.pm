@@ -4,11 +4,24 @@ use Dancer::Plugin::Database;
 
 our $VERSION = '0.1';
 
-get '/' => sub {
+sub posts {
   use File::Fu;
   use DateTime;
+  use Text::Markdown 'markdown';
+  use URI::Encode qw(uri_encode uri_decode);
 
   my $dir = File::Fu->dir(config->{appdir} . '/public/posts/');
+  my @files;
+
+  my $fn = shift;
+  if ($fn) {
+    $fn = uri_decode($fn);
+    @files = $dir->find(sub{ /\/\Q$fn\E$/ });
+  }
+  else {
+    @files = $dir->list;
+  }
+
   my @posts = map { 
     { 
       updated => DateTime->from_epoch( epoch => $_->stat->mtime ),
@@ -16,14 +29,19 @@ get '/' => sub {
       content => join("", $_->read),
       who     => getpwuid($_->stat->uid), 
     } if $_->is_file 
-  } $dir->list;
+  } @files;
 
   foreach (@posts) { 
-	$_->{content} =~ s/\n\n/<\/p><p>/g;
-	$_->{content} = "<p>" . $_->{content} . "</p>"; 
-    $_->{slug} = $_->{title};
-    $_->{slug} =~ s/\s/_/g;
-  } 
+    $_->{slug} = uri_encode($_->{title}, true);
+    $_->{html} = markdown($_->{content});
+  }
+
+  @posts
+}
+
+get '/' => sub {
+
+  my @posts = posts;
 
   template 'index', { posts => \@posts };
 };
@@ -31,26 +49,12 @@ get '/' => sub {
 get qr{/(rdf|rss|atom).*} => sub {
   use XML::Atom::SimpleFeed;
   use File::Fu;
-  use DateTime;
   use DateTime::Format::Atom;
 
+  my @posts = posts;
   my $fa = DateTime::Format::Atom->new();
-
   my $dir = File::Fu->dir(config->{appdir} . '/public/posts/');
-  my @posts = map { 
-    { 
-      updated => DateTime->from_epoch( epoch => $_->stat->mtime ),
-      title   => $_->basename, 
-      content => join("", $_->read),
-      who     => getpwuid($_->stat->uid), 
-    } if $_->is_file 
-  } $dir->list;
 
-  foreach (@posts) { 
-	$_->{content} =~ s/\n\n/<\/p><p>/g;
-	$_->{content} = "<p>" . $_->{content} . "</p>";
-  }
- 
   my $updated = DateTime->from_epoch( epoch => $dir->stat->mtime );
   my $feed = XML::Atom::SimpleFeed->new(
      title   => 'pullingshots',
@@ -62,13 +66,11 @@ get qr{/(rdf|rss|atom).*} => sub {
   );
 
   foreach (@posts) {
-    my $slug = $_->{title};
-    $slug =~ s/\s/_/g;
     $feed->add_entry(
      title     => $_->{title},
-     link      => 'http://pullingshots.ca/' . $slug,
-     id        => 'urn:uuid:' . $slug,
-     summary   => $_->{content},
+     link      => uri_for($_->{slug}),
+     id        => 'urn:uuid:' . $_->{slug},
+     summary   => $_->{html},
      updated   => $fa->format_datetime($_->{updated}),
      category  => 'Miscellaneous',
     );
@@ -80,39 +82,13 @@ get qr{/(rdf|rss|atom).*} => sub {
 };
 
 get '/:post' => sub {
-  use File::Fu;
-  use Try::Tiny;
-  use DateTime;
 
-  my $fn = params->{post};
-  $fn =~ s/_/ /g;
+  my @posts = posts(params->{post});
 
-  my $error;
-  my $file;
-  try {
-    $file = File::Fu->file(config->{appdir} . '/public/posts/' . $fn);
-    $file->stat->mtime;
-  } catch {
+  if (! scalar @posts) {
     status 'not_found';
-    $error = "Nothing to see here.";
-  };
-  return $error if $error;
-
-  my @posts = (
-    { 
-      updated => DateTime->from_epoch( epoch => $file->stat->mtime ),
-      title   => $file->basename, 
-      content => join("", $file->read),
-      who     => getpwuid($file->stat->uid), 
-    } 
-  );
-
-  foreach (@posts) { 
-	$_->{content} =~ s/\n\n/<\/p><p>/g;
-	$_->{content} = "<p>" . $_->{content} . "</p>"; 
-    $_->{slug} = $_->{title};
-    $_->{slug} =~ s/\s/_/g;
-  } 
+    return "Nothing to see here.";
+  }
 
   template 'index', { posts => \@posts };
 };
