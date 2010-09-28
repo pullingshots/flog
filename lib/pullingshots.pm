@@ -49,6 +49,13 @@ get '/' => sub {
   template 'index', { posts => \@posts };
 };
 
+get qr{/index.*} => sub {
+
+  my @posts = posts;
+
+  template 'index', { posts => \@posts };
+};
+
 get qr{/(rdf|rss|atom).*} => sub {
   use XML::Atom::SimpleFeed;
   use File::Fu;
