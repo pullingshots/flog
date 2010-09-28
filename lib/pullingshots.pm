@@ -97,7 +97,7 @@ get '/:post' => sub {
 
   if (! scalar @posts) {
     status 'not_found';
-    return "Nothing to see here.";
+    return "<a href=\"/\">Move along.</a> Nothing to see here.";
   }
 
   template 'index', { posts => \@posts };
