@@ -73,7 +73,7 @@ sub images {
   }
 
   use Image::Thumbnail;
-  my $res = shift || '600';
+  my $res = shift || '640';
   my $thumbdir = File::Fu->dir(config->{appdir} . '/public/images/' . $res . '/');
   if (!$thumbdir->e) { $thumbdir->create; }
   foreach (@files) {
