@@ -78,6 +78,7 @@ sub images {
   if (!$thumbdir->e) { $thumbdir->create; }
   foreach (@files) {
     if ($_->is_file) {
+      my $rotate = `jhead -autorot "$_"`;
       my $thumbfn = $_->basename;
       my @thumb = $thumbdir->find(sub{ /\/\Q$thumbfn\E$/ });
       if (!@thumb) {
