@@ -99,7 +99,8 @@ sub images {
     $_->{slug}  = $_->{title};
     $_->{slug}  =~ s/\s/_/g;
     $_->{slug}  = uri_encode($_->{slug}, true);
-    $_->{html}  = "<p><a href='/images/posts/" . $_->{filename} . "'><img src='/images/$res/" . $_->{filename} . "' /></a></p>";
+    $_->{html}  = "<p><a href='/images/" . $_->{slug} . "'><img src='/images/$res/" . $_->{filename} . "' /></a></p>" if $res < 1024;
+    $_->{html}  = "<p><a href='/images/posts/" . $_->{filename} . "'><img src='/images/$res/" . $_->{filename} . "' /></a></p>" if $res >= 1024;
   }
 
   @images
