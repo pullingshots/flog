@@ -7,6 +7,10 @@
 <meta charset=UTF-8" />
 </head>
 <body>
+<span id="nav">
+  <a href="/images/">images</a>
+  <a href="/atom">feed</a>
+</span>
 <h1><a style="text-decoration: none;" href="/">pullingshots</a></h1>
 <div id="content">
 [% content %]

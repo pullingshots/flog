@@ -1,0 +1,9 @@
+[% FOREACH image IN images %]
+<div class='post'>
+<h2><a style="text-decoration: none;" href="/images/[% image.slug %]">[% image.title %]</a></h2>
+[% image.html %]
+<p><a href="/images/posts/[% image.filename %]"><img src="/images/[% res %]/[% image.filename %]" /></a></p>
+<p><i>posted at [% image.updated %] by [% image.who %]</i></p>
+</div>
+[% END %]
+
