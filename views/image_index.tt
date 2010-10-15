@@ -1,8 +1,10 @@
+<div id='images-[% res %]'>
 [% FOREACH image IN images %]
-<div class='post'>
-<h2><a style="text-decoration: none;" href="/images/[% image.slug %]">[% image.title %]</a></h2>
-[% image.html %]
-<p><i>posted at [% image.updated %] by [% image.who %]</i></p>
-</div>
+	<div class='image'>
+		<h2><a style="text-decoration: none;" href="/images/[% image.slug %]">[% image.title %]</a></h2>
+		[% image.html %]
+		<p class='image-sig'><i>posted at [% image.updated %] by [% image.who %]</i></p>
+	</div>
 [% END %]
-
+</div>
+<div style="clear:both"></div>

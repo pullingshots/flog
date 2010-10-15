@@ -12,6 +12,22 @@ body {
     padding-top: 0.5em;
 }
 
+#images-200 div.image {
+  float:left;
+}
+
+#images-200 p.image-sig {
+  display: none;
+}
+
+.image {
+    color: #000;
+    background-color: #eee;
+    padding: 1em;
+    margin: 1em;
+    padding-top: 0.5em;
+}
+
 a {
     color: #a50c02;
 }

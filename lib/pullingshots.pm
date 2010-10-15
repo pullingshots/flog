@@ -99,8 +99,8 @@ sub images {
     $_->{slug}  = $_->{title};
     $_->{slug}  =~ s/\s/_/g;
     $_->{slug}  = uri_encode($_->{slug}, true);
-    $_->{html}  = "<p><a href='/images/" . $_->{slug} . "'><img src='/images/$res/" . $_->{filename} . "' /></a></p>" if $res < 1024;
-    $_->{html}  = "<p><a href='/images/posts/" . $_->{filename} . "'><img src='/images/$res/" . $_->{filename} . "' /></a></p>" if $res >= 1024;
+    $_->{html}  = "<p><a href='/images/" . $_->{slug} . "'><img src='/images/$res/" . $_->{filename} . "' /></a></p>" if $res < 800;
+    $_->{html}  = "<p><a href='/images/posts/" . $_->{filename} . "'><img src='/images/$res/" . $_->{filename} . "' /></a></p>" if $res >= 800;
   }
 
   @images
@@ -168,9 +168,9 @@ get qr{/(rdf|rss|atom).*} => sub {
 
 get '/images/' => sub {
 
-  my @images = images('', '640');
+  my @images = images('', '200');
 
-  template 'image_index', { images => \@images, res => '640' };
+  template 'image_index', { images => \@images, res => '200' };
 };
 
 get '/:post' => sub {
@@ -187,14 +187,14 @@ get '/:post' => sub {
 
 get '/images/:image' => sub {
 
-  my @images = images(params->{image}, 1024);
+  my @images = images(params->{image}, 800);
 
   if (! scalar @images) {
     status 'not_found';
     return "<a href=\"/\">Move along.</a> Nothing to see here.";
   }
 
-  template 'image_index', { images => \@images, res => '1024' };
+  template 'image_index', { images => \@images, res => '800' };
 };
 
 true;
