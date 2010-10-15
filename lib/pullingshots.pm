@@ -38,9 +38,10 @@ sub posts {
     $_->{slug} = $_->{title};
     $_->{slug} =~ s/\s/_/g;
     $_->{slug} = uri_encode($_->{slug}, true);
-    while ($_->{content} =~ /\!\[(.+)\]\((.+)\)/) {
-      my @images = images($1, $2);
-      $_->{content} =~ s/\!\[\Q$1\E\]\(\Q$2\E\)/$images[0]->{html}/;
+    while ($_->{content} =~ /\!\[(\d+)\]\((.+)\)/) {
+      my @image = images($2, $1);
+      my $html = $image[0]->{html} || "";
+      $_->{content} =~ s/\!\[\Q$1\E\]\(\Q$2\E\)/$html/;
     }
     $_->{html} = markdown($_->{content});
   }
@@ -108,7 +109,7 @@ sub images {
     $_->{html}  = "<p><a href='/images/posts/" . $_->{filename} . "'><img src='/images/$res/" . $_->{filename} . "' /></a></p>" if $res >= 800;
   }
 
-  @images
+  @images;
 }
 
 get '/' => sub {
