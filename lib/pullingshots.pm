@@ -38,10 +38,10 @@ sub posts {
     $_->{slug} = $_->{title};
     $_->{slug} =~ s/\s/_/g;
     $_->{slug} = uri_encode($_->{slug}, true);
-    while ($_->{content} =~ /\!\[(\d+)\]\((.+)\)/) {
+    while ($_->{content} =~ /\n\!\[(\d+)\]\((.+)\)/) {
       my @image = images($2, $1);
       my $html = $image[0]->{html} || "";
-      $_->{content} =~ s/\!\[\Q$1\E\]\(\Q$2\E\)/$html/;
+      $_->{content} =~ s/\n\!\[\Q$1\E\]\(\Q$2\E\)/\n$html/;
     }
     $_->{html} = markdown($_->{content});
   }
