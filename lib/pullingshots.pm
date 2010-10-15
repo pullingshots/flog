@@ -85,6 +85,7 @@ sub images {
         my $t = new Image::Thumbnail(
                 size       => $res,
                 create     => 1,
+		quality    => 70,
 		module     => "Image::Magick",
                 input      => config->{appdir} . '/public/posts/images/' . $_->basename,
                 outputpath => config->{appdir} . '/public/images/' . $res . '/' . $_->basename,
