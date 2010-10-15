@@ -6,7 +6,7 @@ body {
 
 .post {
     color: #000;
-    background-color: #77aabb;
+    background-color: #99ccdd;
     padding: 1em;
     margin: 1em;
     padding-top: 0.5em;
@@ -15,6 +15,11 @@ body {
 #images-200 div.image {
   float:left;
   text-align: center;
+  width: 275px;
+  height: 275px;
+  padding: 0.2em;
+  margin: 1em;
+  padding-top: 0.2em;
 }
 
 #images-200 p.image-sig {
@@ -22,8 +27,9 @@ body {
 }
 
 .image {
+    float: left;
     color: #000;
-    background-color: #ccccbb;
+    background-color: #fff;
     padding: 1em;
     margin: 1em;
     padding-top: 0.5em;
@@ -46,6 +52,22 @@ h2 {
 }
 
 h2 a {
+    color: #ee4422;
+}
+
+h3 {
+    color: #ee4422;
+}
+
+h3 a {
+    color: #ee4422;
+}
+
+h4 {
+    color: #ee4422;
+}
+
+h4 a {
     color: #ee4422;
 }
 
