@@ -1,12 +1,12 @@
 body {
     font-family: Lucida,sans-serif;
-    color: #eee;
-    background-color: #1f1b1a;
+    color: #fff;
+    background-color: #335566;
 }
 
 .post {
     color: #000;
-    background-color: #eee;
+    background-color: #77aabb;
     padding: 1em;
     margin: 1em;
     padding-top: 0.5em;
@@ -14,6 +14,7 @@ body {
 
 #images-200 div.image {
   float:left;
+  text-align: center;
 }
 
 #images-200 p.image-sig {
@@ -22,18 +23,30 @@ body {
 
 .image {
     color: #000;
-    background-color: #eee;
+    background-color: #ccccbb;
     padding: 1em;
     margin: 1em;
     padding-top: 0.5em;
 }
 
 a {
-    color: #a50c02;
+    color: #002233;
 }
 
 h1 {
-    color: #a50c02;
+    color: #ee4422;
+}
+
+h1 a {
+    color: #ee4422;
+}
+
+h2 {
+    color: #ee4422;
+}
+
+h2 a {
+    color: #ee4422;
 }
 
 footer {
@@ -44,8 +57,8 @@ footer {
     color: #ddd;
 }
 
-pre {
-    font-family: \"lucida console\",\"monaco\",\"andale mono\",\"bitstream vera sans mono\",\"consolas\",monospace;
+footer a {
+    color: #ee4422;
 }
 
 img {
@@ -55,3 +68,14 @@ img {
 #nav {
     float: right;
 }
+
+#nav a {
+    text-decoration: none;
+    color: #ee4422;
+}
+
+pre {
+    font-family: \"lucida console\",\"monaco\",\"andale mono\",\"bitstream vera sans mono\",\"consolas\",monospace;
+}
+
+
