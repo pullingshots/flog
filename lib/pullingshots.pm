@@ -105,8 +105,8 @@ sub images {
     $_->{slug}  = $_->{title};
     $_->{slug}  =~ s/\s/_/g;
     $_->{slug}  = uri_encode($_->{slug}, true);
-    $_->{html}  = "<p><a href='/images/" . $_->{slug} . "'><img src='/images/$res/" . $_->{filename} . "' /></a></p>" if $res < 800;
-    $_->{html}  = "<p><a href='/images/posts/" . $_->{filename} . "'><img src='/images/$res/" . $_->{filename} . "' /></a></p>" if $res >= 800;
+    $_->{html}  = "<p><a href='/images/" . $_->{slug} . "' title='" . $_->{title} . "'><img src='/images/$res/" . $_->{filename} . "' alt='" . $_->{title} . "' /></a></p>" if $res < 800;
+    $_->{html}  = "<p><a href='/images/posts/" . $_->{filename} . "' title='" . $_->{title} . "'><img src='/images/$res/" . $_->{filename} . "' alt='" . $_->{title} . "' /></a></p>" if $res >= 800;
   }
 
   @images;
