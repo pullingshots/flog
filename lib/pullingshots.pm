@@ -46,7 +46,7 @@ sub posts {
     $_->{html} = markdown($_->{content});
   }
 
-  @posts
+  sort { $a->{updated} < $b->{updated} } @posts
 }
 
 sub images {
@@ -109,7 +109,7 @@ sub images {
     $_->{html}  = "<p><a href='/images/posts/" . $_->{filename} . "' title='" . $_->{title} . "'><img src='/images/$res/" . $_->{filename} . "' alt='" . $_->{title} . "' /></a></p>" if $res >= 800;
   }
 
-  @images;
+  sort { $a->{updated} < $b->{updated} } @images
 }
 
 get '/' => sub {
