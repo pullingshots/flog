@@ -113,6 +113,46 @@ sub images {
   sort { $a->{updated} < $b->{updated} } @images
 }
 
+sub audio {
+  use File::Fu;
+  use DateTime;
+  use URI::Encode qw(uri_encode uri_decode);
+
+  my $dir = File::Fu->dir(config->{appdir} . '/public/posts/audio/');
+  my @files;
+
+  my $fn = shift;
+  if ($fn) {
+    $fn = uri_decode($fn);
+    $fn =~ s/_/ /g;
+    @files = $dir->find(sub{ /\/\Q$fn\E$/ });
+  }
+  else {
+    @files = $dir->list;
+  }
+
+  my @posts;
+  foreach (@files) {
+    next if $_->is_dir;
+    push @posts,  {
+      updated => DateTime->from_epoch( epoch => $_->stat->mtime ),
+      filename   => $_->basename,
+      who     => getpwuid($_->stat->uid),
+    }
+  }
+
+  foreach (@posts) {
+    $_->{title} = $_->{filename};
+    $_->{title} =~ s/\..+$//;
+    $_->{slug} = $_->{title};
+    $_->{slug} =~ s/\s/_/g;
+    $_->{slug} = uri_encode($_->{slug}, true);
+    $_->{html}  = "<p><a href='/audio/" . $_->{filename} . "' title='" . $_->{title} . "'>download</a></p>";
+  }
+
+  sort { $a->{updated} < $b->{updated} } @posts
+}
+
 get '/' => sub {
 
   my @posts = posts;
@@ -134,6 +174,7 @@ get qr{/(rdf|rss|atom).*} => sub {
 
   my @posts = posts;
   my @images = images;
+  my @audio = audio;
   my $fa = DateTime::Format::Atom->new();
   my $dir = File::Fu->dir(config->{appdir} . '/public/posts/');
 
@@ -164,7 +205,17 @@ get qr{/(rdf|rss|atom).*} => sub {
      id        => 'urn:uuid:' . $_->{slug},
      summary   => $_->{html},
      updated   => $fa->format_datetime($_->{updated}),
-     category  => 'Miscellaneous',
+     category  => 'Images',
+    );
+  }
+  foreach (@audio) {
+    $feed->add_entry(
+     title     => $_->{title},
+     link      => uri_for('/audio/' . $_->{filename}),
+     id        => 'urn:uuid:' . $_->{filename},
+     summary   => $_->{html},
+     updated   => $fa->format_datetime($_->{updated}),
+     category  => 'Audio',
     );
   }
  
@@ -178,6 +229,13 @@ get '/images/' => sub {
   my @images = images('', '200');
 
   template 'image_index', { images => \@images, res => '200' };
+};
+
+get '/audio/' => sub {
+
+  my @files = audio;
+
+  template 'audio_index', { files => \@files };
 };
 
 get '/:post' => sub {

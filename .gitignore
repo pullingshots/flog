@@ -4,3 +4,4 @@ logs
 *.cache
 public/posts
 public/images
+public/audio
