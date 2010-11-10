@@ -125,7 +125,7 @@ sub audio {
   if ($fn) {
     $fn = uri_decode($fn);
     $fn =~ s/_/ /g;
-    @files = $dir->find(sub{ /\/\Q$fn\E$/ });
+    @files = $dir->find(sub{ /\/\Q$fn\E\..+$/ });
   }
   else {
     @files = $dir->list;
@@ -217,8 +217,8 @@ get qr{/(rdf|rss|atom).*} => sub {
   foreach (@audio) {
     $feed->add_entry(
      title     => $_->{title},
-     link      => uri_for('/audio/' . $_->{filename}),
-     id        => 'urn:uuid:' . $_->{filename},
+     link      => uri_for('/audio/' . $_->{slug}),
+     id        => 'urn:uuid:' . $_->{slug},
      summary   => $_->{html},
      updated   => $fa->format_datetime($_->{updated}),
      category  => 'Audio',
@@ -266,6 +266,18 @@ get '/images/:image' => sub {
   }
 
   template 'image_index', { images => \@images, res => '800' };
+};
+
+get '/audio/:file' => sub {
+
+  my @files = audio(params->{file});
+
+  if (! scalar @files) {
+    status 'not_found';
+    return "<a href=\"/\">Move along.</a> Nothing to see here.";
+  }
+
+  template 'audio_index', { files => \@files };
 };
 
 true;
