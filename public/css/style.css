@@ -12,6 +12,14 @@ body {
     padding-top: 0.5em;
 }
 
+.audio {
+    color: #000;
+    background-color: #99ccdd;
+    padding: 1em;
+    margin: 1em;
+    padding-top: 0.5em;
+}
+
 #images-200 div.image {
   float:left;
   text-align: center;

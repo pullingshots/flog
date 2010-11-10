@@ -1,6 +1,6 @@
 <div id='audio'>
 [% FOREACH file IN files %]
-	<div class='file'>
+	<div class='audio'>
 		<h4>[% file.title %]</h4>
 		[% file.html %]
 		<p class='audio-sig'><i>posted at [% file.updated %] by [% file.who %]</i></p>

@@ -144,10 +144,16 @@ sub audio {
   foreach (@posts) {
     $_->{title} = $_->{filename};
     $_->{title} =~ s/\..+$//;
+    my $ogg = $_->{title} . ".ogg";
+    my $mp3 = $_->{title} . ".mp3";
     $_->{slug} = $_->{title};
     $_->{slug} =~ s/\s/_/g;
     $_->{slug} = uri_encode($_->{slug}, true);
-    $_->{html}  = "<p><a href='/audio/" . $_->{filename} . "' title='" . $_->{title} . "'>download</a></p>";
+    $_->{html} = qq|<p><audio controls preload="auto" autobuffer>
+  <source src="/audio/ogg/$ogg" />
+  <source src="/audio/mp3/$mp3" />
+</audio></p>|;
+    $_->{html} .= "<p><a href='/audio/posts/" . $_->{filename} . "' title='" . $_->{title} . "'>download</a></p>";
   }
 
   sort { $a->{updated} < $b->{updated} } @posts
