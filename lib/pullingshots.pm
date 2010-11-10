@@ -35,6 +35,7 @@ sub posts {
   }
 
   foreach (@posts) {
+    $_->{prefix} = '/';
     $_->{slug} = $_->{title};
     $_->{slug} =~ s/\s/_/g;
     $_->{slug} = uri_encode($_->{slug}, true);
@@ -46,7 +47,7 @@ sub posts {
     $_->{html} = markdown($_->{content});
   }
 
-  sort { $a->{updated} < $b->{updated} } @posts
+  sort { $b->{updated} <=> $a->{updated} } @posts
 }
 
 sub images {
@@ -100,6 +101,7 @@ sub images {
   }
 
   foreach (@images) {
+    $_->{prefix} = '/images/';
     $_->{title} = $_->{filename};
     $_->{title} =~ s/\..+$//;
     $_->{slug}  = $_->{title};
@@ -110,13 +112,15 @@ sub images {
     $_->{html}  = "<p><a href='/images/posts/" . $_->{filename} . "' title='" . $_->{title} . "'><img src='/images/$res/" . $_->{filename} . "' alt='" . $_->{title} . "' /></a></p>" if $res >= 800;
   }
 
-  sort { $a->{updated} < $b->{updated} } @images
+  sort { $b->{updated} <=> $a->{updated} } @images
 }
 
 sub audio {
   use File::Fu;
   use DateTime;
   use URI::Encode qw(uri_encode uri_decode);
+
+  use Music::Tag;
 
   my $dir = File::Fu->dir(config->{appdir} . '/public/posts/audio/');
   my @files;
@@ -134,14 +138,37 @@ sub audio {
   my @posts;
   foreach (@files) {
     next if $_->is_dir;
+    my $info = Music::Tag->new($_);
+    $info->get_tag();
     push @posts,  {
       updated => DateTime->from_epoch( epoch => $_->stat->mtime ),
       filename   => $_->basename,
+      info  => $info,
       who     => getpwuid($_->stat->uid),
+    };
+  }
+
+  my $oggdir = File::Fu->dir(config->{appdir} . '/public/audio/ogg/');
+  if (!$oggdir->e) { $oggdir->create; }
+  my $mp3dir = File::Fu->dir(config->{appdir} . '/public/audio/mp3/');
+  if (!$mp3dir->e) { $mp3dir->create; }
+  foreach (@files) {
+    if ($_->is_file) {
+      my $base_fn = $_->basename;
+      $base_fn =~ s/\..+$//;
+      my @ogg = $oggdir->find(sub{ /\/\Q$base_fn\E\./ });
+      if (!@ogg) {
+        my $ffmpeg = `ffmpeg -i "$_" -acodec vorbis -aq 20 "$oggdir$base_fn.ogg" >/dev/null 2>/dev/null </dev/null &`;
+      }
+      my @mp3 = $mp3dir->find(sub{ /\/\Q$base_fn\E\./ });
+      if (!@mp3) {
+        my $ffmpeg = `ffmpeg -i "$_" -ab 128000 "$mp3dir$base_fn.mp3" >/dev/null 2>/dev/null </dev/null &`;
+      }
     }
   }
 
   foreach (@posts) {
+    $_->{prefix} = '/audio/';
     $_->{title} = $_->{filename};
     $_->{title} =~ s/\..+$//;
     my $ogg = $_->{title} . ".ogg";
@@ -149,14 +176,17 @@ sub audio {
     $_->{slug} = $_->{title};
     $_->{slug} =~ s/\s/_/g;
     $_->{slug} = uri_encode($_->{slug}, true);
-    $_->{html} = qq|<p><audio controls preload="auto" autobuffer>
+    my ($artist, $album, $title) = ($_->{info}->artist(), $_->{info}->album(), $_->{info}->title());
+    $_->{html} = qq|<p>
+<audio controls preload="auto" autobuffer>
   <source src="/audio/ogg/$ogg" />
   <source src="/audio/mp3/$mp3" />
-</audio></p>|;
-    $_->{html} .= "<p><a href='/audio/posts/" . $_->{filename} . "' title='" . $_->{title} . "'>download</a></p>";
+</audio>|;
+    $_->{html} .= " <a href='/audio/posts/" . $_->{filename} . "' title='download " . $_->{title} . "'><img widht='24' height='24' src='/images/dl_icon.png' /></a><br />";
+    $_->{html} .= qq|<strong><i>$title</i></strong> by <strong><i>$artist</i></strong> from the album <strong><i>$album</i></strong></p>|;
   }
 
-  sort { $a->{updated} < $b->{updated} } @posts
+  sort { $b->{updated} <=> $a->{updated} } @posts
 }
 
 get '/' => sub {
@@ -194,34 +224,14 @@ get qr{/(rdf|rss|atom).*} => sub {
      id      => 'urn:uuid:60a76c80-d399-11d9-b93C-0003939e0af6',
   );
 
-  foreach (@posts) {
+  foreach (sort { $b->{updated} <=> $a->{updated} } @posts, @images, @audio) {
     $feed->add_entry(
      title     => $_->{title},
-     link      => uri_for($_->{slug}),
+     link      => uri_for($_->{prefix} . $_->{slug}),
      id        => 'urn:uuid:' . $_->{slug},
      summary   => $_->{html},
      updated   => $fa->format_datetime($_->{updated}),
      category  => 'Miscellaneous',
-    );
-  }
-  foreach (@images) {
-    $feed->add_entry(
-     title     => $_->{title},
-     link      => uri_for('/images/' . $_->{slug}),
-     id        => 'urn:uuid:' . $_->{slug},
-     summary   => $_->{html},
-     updated   => $fa->format_datetime($_->{updated}),
-     category  => 'Images',
-    );
-  }
-  foreach (@audio) {
-    $feed->add_entry(
-     title     => $_->{title},
-     link      => uri_for('/audio/' . $_->{slug}),
-     id        => 'urn:uuid:' . $_->{slug},
-     summary   => $_->{html},
-     updated   => $fa->format_datetime($_->{updated}),
-     category  => 'Audio',
     );
   }
  
