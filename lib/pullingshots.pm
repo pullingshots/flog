@@ -158,7 +158,7 @@ sub audio {
       $base_fn =~ s/\..+$//;
       my @ogg = $oggdir->find(sub{ /\/\Q$base_fn\E\./ });
       if (!@ogg) {
-        my $ffmpeg = `ffmpeg -i "$_" -acodec vorbis -aq 20 "$oggdir$base_fn.ogg" >/dev/null 2>/dev/null </dev/null &`;
+        my $ffmpeg = `ffmpeg -i "$_" -acodec vorbis -aq 30 "$oggdir$base_fn.ogg" >/dev/null 2>/dev/null </dev/null &`;
       }
       my @mp3 = $mp3dir->find(sub{ /\/\Q$base_fn\E\./ });
       if (!@mp3) {
@@ -178,7 +178,7 @@ sub audio {
     $_->{slug} = uri_encode($_->{slug}, true);
     my ($artist, $album, $title) = ($_->{info}->artist(), $_->{info}->album(), $_->{info}->title());
     $_->{html} = qq|<p>
-<audio controls preload="auto" autobuffer>
+<audio controls preload="none">
   <source src="/audio/ogg/$ogg" />
   <source src="/audio/mp3/$mp3" />
 </audio>|;
@@ -257,6 +257,18 @@ get '/audio/' => sub {
 get '/:post' => sub {
 
   my @posts = posts(params->{post});
+
+  if (! scalar @posts) {
+    status 'not_found';
+    return "<a href=\"/\">Move along.</a> Nothing to see here.";
+  }
+
+  template 'index', { posts => \@posts };
+};
+
+get '/drafts/:post' => sub {
+
+  my @posts = posts('drafts/' . params->{post});
 
   if (! scalar @posts) {
     status 'not_found';
