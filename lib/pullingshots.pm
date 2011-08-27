@@ -78,6 +78,18 @@ sub images {
     }
   }
 
+  my $postsdir = File::Fu->dir(config->{appdir} . '/public/images/posts/');
+  if (!$postsdir->e) { $postsdir->create; }
+  foreach (@files) {
+    if ($_->is_file) {
+      my $fn = $_->basename;
+      my @post = $postsdir->find(sub { /\/\Q$fn\E$/ });
+      if (!@post) {
+        $_->copy( $postsdir );
+      }
+    }
+  }
+
   use Image::Thumbnail;
   my $res = shift || '640';
   my $thumbdir = File::Fu->dir(config->{appdir} . '/public/images/' . $res . '/');
@@ -158,32 +170,36 @@ sub audio {
       $base_fn =~ s/\..+$//;
       my @ogg = $oggdir->find(sub{ /\/\Q$base_fn\E\./ });
       if (!@ogg) {
+	#my $touch = `touch $_`;
         my $ffmpeg = `ffmpeg -i "$_" -acodec vorbis -aq 30 "$oggdir$base_fn.ogg" >/dev/null 2>/dev/null </dev/null &`;
       }
       my @mp3 = $mp3dir->find(sub{ /\/\Q$base_fn\E\./ });
       if (!@mp3) {
+	#my $touch = `touch $_`;
         my $ffmpeg = `ffmpeg -i "$_" -ab 128000 "$mp3dir$base_fn.mp3" >/dev/null 2>/dev/null </dev/null &`;
       }
     }
   }
 
   foreach (@posts) {
-    $_->{prefix} = '/audio/';
-    $_->{title} = $_->{filename};
-    $_->{title} =~ s/\..+$//;
-    my $ogg = $_->{title} . ".ogg";
-    my $mp3 = $_->{title} . ".mp3";
-    $_->{slug} = $_->{title};
-    $_->{slug} =~ s/\s/_/g;
-    $_->{slug} = uri_encode($_->{slug}, true);
-    my ($artist, $album, $title) = ($_->{info}->artist(), $_->{info}->album(), $_->{info}->title());
-    $_->{html} = qq|<p>
-<audio controls preload="none">
-  <source src="/audio/ogg/$ogg" />
-  <source src="/audio/mp3/$mp3" />
-</audio>|;
-    $_->{html} .= " <a href='/audio/posts/" . $_->{filename} . "' title='download " . $_->{title} . "'><img widht='24' height='24' src='/images/dl_icon.png' /></a><br />";
-    $_->{html} .= qq|<strong><i>$title</i></strong> by <strong><i>$artist</i></strong> from the album <strong><i>$album</i></strong></p>|;
+    if ($_->{info}->title()) {
+	    $_->{prefix} = '/audio/';
+	    $_->{title} = $_->{filename};
+	    $_->{title} =~ s/\..+$//;
+	    my $ogg = $_->{title} . ".ogg";
+	    my $mp3 = $_->{title} . ".mp3";
+	    $_->{slug} = $_->{title};
+	    $_->{slug} =~ s/\s/_/g;
+	    $_->{slug} = uri_encode($_->{slug}, true);
+	    my ($artist, $album, $title) = ($_->{info}->artist(), $_->{info}->album(), $_->{info}->title());
+	    $_->{html} = qq|<p>
+	<audio controls preload="none">
+	  <source src="/audio/ogg/$ogg" />
+	  <source src="/audio/mp3/$mp3" />
+	</audio>|;
+	    $_->{html} .= " <a href='/audio/posts/" . $_->{filename} . "' title='download " . $_->{title} . "'><img widht='24' height='24' src='/images/dl_icon.png' /></a><br />";
+	    $_->{html} .= qq|<strong><i>$title</i></strong> by <strong><i>$artist</i></strong> from the album <strong><i>$album</i></strong></p>|;
+    }
   }
 
   sort { $b->{updated} <=> $a->{updated} } @posts
@@ -193,14 +209,14 @@ get '/' => sub {
 
   my @posts = posts;
 
-  template 'index', { posts => \@posts };
+  template 'index', { page_title => 'Enjoy!', posts => \@posts };
 };
 
 get qr{/index.*} => sub {
 
   my @posts = posts;
 
-  template 'index', { posts => \@posts };
+  template 'index', { page_title => 'Enjoy!', posts => \@posts };
 };
 
 get qr{/(rdf|rss|atom).*} => sub {
@@ -244,14 +260,14 @@ get '/images/' => sub {
 
   my @images = images('', '200');
 
-  template 'image_index', { images => \@images, res => '200' };
+  template 'image_index', { page_title => 'Look', images => \@images, res => '200' };
 };
 
 get '/audio/' => sub {
 
   my @files = audio;
 
-  template 'audio_index', { files => \@files };
+  template 'audio_index', { page_title => 'Listen', files => \@files };
 };
 
 get '/:post' => sub {
@@ -263,7 +279,7 @@ get '/:post' => sub {
     return "<a href=\"/\">Move along.</a> Nothing to see here.";
   }
 
-  template 'index', { posts => \@posts };
+  template 'index', { page_title => $posts[0]->{title}, posts => \@posts };
 };
 
 get '/drafts/:post' => sub {
@@ -275,7 +291,7 @@ get '/drafts/:post' => sub {
     return "<a href=\"/\">Move along.</a> Nothing to see here.";
   }
 
-  template 'index', { posts => \@posts };
+  template 'index', { page_title => $posts[0]->{title}, posts => \@posts };
 };
 
 get '/images/:image' => sub {
@@ -287,7 +303,7 @@ get '/images/:image' => sub {
     return "<a href=\"/\">Move along.</a> Nothing to see here.";
   }
 
-  template 'image_index', { images => \@images, res => '800' };
+  template 'image_index', { page_title => $images[0]->{title}, images => \@images, res => '800' };
 };
 
 get '/audio/:file' => sub {
@@ -299,7 +315,7 @@ get '/audio/:file' => sub {
     return "<a href=\"/\">Move along.</a> Nothing to see here.";
   }
 
-  template 'audio_index', { files => \@files };
+  template 'audio_index', { page_title => $files[0]->{title}, files => \@files };
 };
 
 true;

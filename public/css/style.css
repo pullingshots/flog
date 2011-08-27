@@ -43,6 +43,12 @@ body {
     padding-top: 0.5em;
 }
 
+img {
+   padding: 3px;
+   border: 2px solid #000;
+   background-color:#fff;
+}
+
 a {
     color: #002233;
 }
@@ -91,9 +97,6 @@ footer a {
     color: #ee4422;
 }
 
-img {
-    border-style: none;
-}
 
 #nav {
     float: right;
