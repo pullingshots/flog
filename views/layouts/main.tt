@@ -3,6 +3,8 @@
 <head>
 <title>[% page_title %] &mdash; pullingshots</title>
 <link rel="stylesheet" href="/css/style.css" />
+<link rel="stylesheet" href="/css/prettify.css" />
+<script type="javascrip" src"/js/prettify.js"></script>
 <link rel="alternate" type="application/atom+xml" title="Atom Feed" href="http://pullingshots.ca/atom" />
 <meta charset=UTF-8" />
 </head>

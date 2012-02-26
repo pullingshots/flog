@@ -45,6 +45,7 @@ sub posts {
       $_->{content} =~ s/\n\!\[\Q$1\E\]\(\Q$2\E\)/\n$html/;
     }
     $_->{html} = markdown($_->{content});
+    $_->{html} =~ s/\<pre\>/\<pre class='prettyprint'\>/g;
   }
 
   sort { $b->{updated} <=> $a->{updated} } @posts
