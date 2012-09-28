@@ -151,7 +151,7 @@ sub audio {
   my @posts;
   foreach (@files) {
     next if $_->is_dir;
-    my $info = Music::Tag->new($_);
+    my $info = Music::Tag->new($_, { quiet => 1 });
     $info->get_tag();
     push @posts,  {
       updated => DateTime->from_epoch( epoch => $_->stat->mtime ),
@@ -198,7 +198,7 @@ sub audio {
 	  <source src="/audio/ogg/$ogg" />
 	  <source src="/audio/mp3/$mp3" />
 	</audio>|;
-	    $_->{html} .= " <a href='/audio/posts/" . $_->{filename} . "' title='download " . $_->{title} . "'><img widht='24' height='24' src='/images/dl_icon.png' /></a><br />";
+	    $_->{html} .= " <a href='/audio/posts/" . $_->{filename} . "' title='download " . $_->{title} . "'><img width='24' height='24' src='/images/dl_icon.png' /></a><br />";
 	    $_->{html} .= qq|<strong><i>$title</i></strong> by <strong><i>$artist</i></strong> from the album <strong><i>$album</i></strong></p>|;
     }
   }
@@ -224,6 +224,7 @@ get qr{/(rdf|rss|atom).*} => sub {
   use XML::Atom::SimpleFeed;
   use File::Fu;
   use DateTime::Format::Atom;
+  use Data::UUID;
 
   my @posts = posts;
   my @images = images;
@@ -232,27 +233,28 @@ get qr{/(rdf|rss|atom).*} => sub {
   my $dir = File::Fu->dir(config->{appdir} . '/public/posts/');
 
   my $updated = DateTime->from_epoch( epoch => $dir->stat->mtime );
+  my $uuid = new Data::UUID;
   my $feed = XML::Atom::SimpleFeed->new(
      title   => 'pullingshots',
      link    => 'http://pullingshots.ca/',
      link    => { rel => 'self', href => 'http://pullingshots.ca/atom', },
      updated => $fa->format_datetime($updated),
      author  => 'Andrew Baerg',
-     id      => 'urn:uuid:60a76c80-d399-11d9-b93C-0003939e0af6',
+     id      => 'urn:uuid:' . $uuid->create_from_name_str(NameSpace_URL, "pullingshots.ca"),
   );
 
   foreach (sort { $b->{updated} <=> $a->{updated} } @posts, @images, @audio) {
     $feed->add_entry(
      title     => $_->{title},
      link      => uri_for($_->{prefix} . $_->{slug}),
-     id        => 'urn:uuid:' . $_->{slug},
+     id        => 'urn:uuid:' . $uuid->create_from_name_str(NameSpace_URL, $_->{prefix} . $_->{slug} ),
      summary   => $_->{html},
      updated   => $fa->format_datetime($_->{updated}),
      category  => 'Miscellaneous',
     );
   }
  
-  content_type 'application/xhtml+xml';
+  content_type 'application/xml';
 
  $feed->as_string;
 };
