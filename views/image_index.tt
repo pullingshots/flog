@@ -1,4 +1,10 @@
+[% subdir %]
 <div id='images-[% res %]'>
+[% FOREACH image IN previous_images %]
+<div class='image'>
+  <p><a href="/images/[% image.slug %]"><img src='/images/[% res %]/[% image.filename %]' alt='[% image.title %]' width='50px' /></a></p>
+</div>
+[% END %]
 [% FOREACH image IN images %]
 	<div class='image'>
 		<h4><a style="text-decoration: none;" href="/images/[% image.slug %]">[% image.title %]</a></h4>
@@ -7,4 +13,9 @@
 	</div>
 [% END %]
 </div>
+[% FOREACH image IN next_images %]
+<div class='image'>
+  <p><a href="/images/[% image.slug %]"><img src='/images/[% res %]/[% image.filename %]' alt='[% image.title %]' width='50px' /></a></p>
+</div>
+[% END %]
 <div style="clear:both"></div>

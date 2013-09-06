@@ -56,58 +56,92 @@ sub images {
   use DateTime;
   use URI::Encode qw(uri_encode uri_decode);
 
-  my $dir = File::Fu->dir(config->{appdir} . '/public/posts/images/');
+  my $fn = shift;
+  my $res = shift || '640';
+  my $subdir = shift;
+
+  my $prefix = '';
+  my $dir;
+  if ($subdir) {
+    $prefix = $subdir . ' ';
+    $dir = File::Fu->dir(config->{appdir} . '/public/posts/images/' . $subdir . '/');
+  }
+  else {
+    $dir = File::Fu->dir(config->{appdir} . '/public/posts/images/');
+  }
+
   my @files;
 
-  my $fn = shift;
   if ($fn) {
     $fn = uri_decode($fn);
     $fn =~ s/_/ /g;
-    @files = $dir->find(sub{ /\/\Q$fn\E\..+$/ });
+    my @f = $dir->list;
+    @f = sort { $b->stat->mtime <=> $a->stat->mtime } @f;
+    my $prev_f;
+    foreach (@f) {
+      next if $_->is_dir;
+      if (scalar @files) {
+        $prev_f = $_;
+        last;
+      }
+      my $test = $_;
+      $test =~ s/_/ /g;
+      if ($test =~ /\/\Q$fn\E\..+$/) {
+        push @files, $_;
+        push @files, $prev_f || $_;
+      }
+      $prev_f = $_;
+    }
+    push @files, $prev_f;
   }
   else {
-    @files = $dir->list;
+    my @f = $dir->list;
+    @f = sort { $b->stat->mtime <=> $a->stat->mtime } @f;
+    foreach (@f) {
+      next if $_->is_dir;
+      push @files, $_;
+    }
+    splice @files, 10;
   }
 
   my @images;
+
   foreach (@files) {
     next if $_->is_dir;
     push @images,  { 
       updated => DateTime->from_epoch( epoch => $_->stat->mtime ),
       filename   => $_->basename, 
       who     => getpwuid($_->stat->uid), 
-    }
+    };
   }
 
   my $postsdir = File::Fu->dir(config->{appdir} . '/public/images/posts/');
   if (!$postsdir->e) { $postsdir->create; }
   foreach (@files) {
     if ($_->is_file) {
-      my $fn = $_->basename;
-      my @post = $postsdir->find(sub { /\/\Q$fn\E$/ });
-      if (!@post) {
-        $_->copy( $postsdir );
+      my $post_file = File::Fu->file(config->{appdir} . '/public/images/posts/' . $prefix . $_->basename);
+      if (!$post_file->e) {
+        $_->copy( $post_file );
       }
     }
   }
 
   use Image::Thumbnail;
-  my $res = shift || '640';
   my $thumbdir = File::Fu->dir(config->{appdir} . '/public/images/' . $res . '/');
   if (!$thumbdir->e) { $thumbdir->create; }
   foreach (@files) {
     if ($_->is_file) {
       my $rotate = `jhead -autorot "$_"`;
-      my $thumbfn = $_->basename;
+      my $thumbfn = $prefix . $_->basename;
       my @thumb = $thumbdir->find(sub{ /\/\Q$thumbfn\E$/ });
       if (!@thumb) {
         my $t = new Image::Thumbnail(
                 size       => $res,
                 create     => 1,
 		quality    => 70,
-		module     => "Image::Magick",
-                input      => config->{appdir} . '/public/posts/images/' . $_->basename,
-                outputpath => config->{appdir} . '/public/images/' . $res . '/' . $_->basename,
+		#module     => "Image::Magick",
+                input      => config->{appdir} . '/public/images/posts/' . $prefix . $_->basename,
+                outputpath => config->{appdir} . '/public/images/' . $res . '/' . $prefix . $_->basename,
         );
       }
     }
@@ -119,13 +153,13 @@ sub images {
     $_->{title} =~ s/\..+$//;
     $_->{slug}  = $_->{title};
     $_->{slug}  =~ s/\s/_/g;
-    $_->{slug}  = uri_encode($_->{slug}, true);
-    $_->{filename}  = uri_encode($_->{filename}, true);
+    $_->{slug}  = ($subdir) ? $subdir . '/' . uri_encode($_->{slug}, true) : uri_encode($_->{slug}, true);
+    $_->{filename}  = uri_encode($prefix . $_->{filename}, true);
     $_->{html}  = "<p><a href='/images/" . $_->{slug} . "' title='" . $_->{title} . "'><img src='/images/$res/" . $_->{filename} . "' alt='" . $_->{title} . "' /></a></p>" if $res < 800;
     $_->{html}  = "<p><a href='/images/posts/" . $_->{filename} . "' title='" . $_->{title} . "'><img src='/images/$res/" . $_->{filename} . "' alt='" . $_->{title} . "' /></a></p>" if $res >= 800;
   }
 
-  sort { $b->{updated} <=> $a->{updated} } @images
+  @images
 }
 
 sub audio {
@@ -168,7 +202,7 @@ sub audio {
   foreach (@files) {
     if ($_->is_file) {
       my $base_fn = $_->basename;
-      $base_fn =~ s/\..+$//;
+      $base_fn =~ s/\.\w+$//;
       my @ogg = $oggdir->find(sub{ /\/\Q$base_fn\E\./ });
       if (!@ogg) {
 	#my $touch = `touch $_`;
@@ -186,7 +220,7 @@ sub audio {
     if ($_->{info}->title()) {
 	    $_->{prefix} = '/audio/';
 	    $_->{title} = $_->{filename};
-	    $_->{title} =~ s/\..+$//;
+	    $_->{title} =~ s/\.\w+$//;
 	    my $ogg = $_->{title} . ".ogg";
 	    my $mp3 = $_->{title} . ".mp3";
 	    $_->{slug} = $_->{title};
@@ -198,7 +232,7 @@ sub audio {
 	  <source src="/audio/ogg/$ogg" />
 	  <source src="/audio/mp3/$mp3" />
 	</audio>|;
-	    $_->{html} .= " <a href='/audio/posts/" . $_->{filename} . "' title='download " . $_->{title} . "'><img width='24' height='24' src='/images/dl_icon.png' /></a><br />";
+	    $_->{html} .= " <a href='/audio/mp3/$mp3' title='download mp3" . $_->{title} . "'><img width='24' height='24' src='/images/dl_icon.png' /></a><br />";
 	    $_->{html} .= qq|<strong><i>$title</i></strong> by <strong><i>$artist</i></strong> from the album <strong><i>$album</i></strong></p>|;
     }
   }
@@ -220,7 +254,7 @@ get qr{/index.*} => sub {
   template 'index', { page_title => 'Enjoy!', posts => \@posts };
 };
 
-get qr{/(rdf|rss|atom).*} => sub {
+get qr{/(rdf|atom).*} => sub {
   use XML::Atom::SimpleFeed;
   use File::Fu;
   use DateTime::Format::Atom;
@@ -259,9 +293,63 @@ get qr{/(rdf|rss|atom).*} => sub {
  $feed->as_string;
 };
 
+get '/rss' => sub {
+  use XML::RSS;
+  use File::Fu;
+  use DateTime::Format::RSS;
+  use Data::UUID;
+
+  my @posts = posts;
+  my @images = images;
+  my @audio = audio;
+  my $fa = DateTime::Format::RSS->new();
+  my $dir = File::Fu->dir(config->{appdir} . '/public/posts/');
+
+  my $updated = DateTime->from_epoch( epoch => $dir->stat->mtime );
+  my $uuid = new Data::UUID;
+
+  my $rss = XML::RSS->new (version => '2.0');
+  $rss->channel(title          => 'pullingshots',
+               link           => 'http://pullingshots.ca',
+               language       => 'en',
+               description    => 'Enjoy!',
+               pubDate        => $fa->format_datetime($updated),
+               lastBuildDate  => $fa->format_datetime($updated),
+               managingEditor => 'andrew@pullingshots.ca',
+               webMaster      => 'andrew@pullingshots.ca'
+               );
+
+  foreach (sort { $b->{updated} <=> $a->{updated} } @images) {
+    $rss->image(title       => $_->{title},
+             url         => uri_for($_->{prefix} . $_->{slug}),
+             link        => uri_for($_->{prefix} . $_->{slug}),
+             width       => 640,
+             description => $_->{html},
+             );
+  }
+
+  foreach (sort { $b->{updated} <=> $a->{updated} } @posts, @audio) {
+    $rss->add_item(title => $_->{title},
+        permaLink  => uri_for($_->{prefix} . $_->{slug}),
+        description => $_->{html},
+    );
+  }
+
+  content_type 'application/xml';
+
+  $rss->as_string;
+};
+
 get '/images/' => sub {
 
   my @images = images('', '200');
+
+  template 'image_index', { page_title => 'Look', images => \@images, res => '200' };
+};
+
+get '/images/:dir/' => sub {
+
+  my @images = images('', '200', params->{dir});
 
   template 'image_index', { page_title => 'Look', images => \@images, res => '200' };
 };
@@ -306,7 +394,33 @@ get '/images/:image' => sub {
     return "<a href=\"/\">Move along.</a> Nothing to see here.";
   }
 
-  template 'image_index', { page_title => $images[0]->{title}, images => \@images, res => '800' };
+  my @current;
+  push @current, $images[0];
+  my @previous;
+  push @previous, $images[1];
+  my @next;
+  push @next, $images[2];
+
+  template 'image_index', { page_title => $images[0]->{title}, images => \@current, previous_images => \@previous, next_images => \@next, res => '800' };
+};
+
+get '/images/:dir/:image' => sub {
+
+  my @images = images(params->{image}, 800, params->{dir});
+
+  if (! scalar @images) {
+    status 'not_found';
+    return "<a href=\"/\">Move along.</a> Nothing to see here.";
+  }
+
+  my @current;
+  push @current, $images[0];
+  my @previous;
+  push @previous, $images[1];
+  my @next;
+  push @next, $images[2];
+
+  template 'image_index', { page_title => $images[0]->{title}, images => \@current, previous_images => \@previous, next_images => \@next, res => '800' };
 };
 
 get '/audio/:file' => sub {
@@ -319,6 +433,10 @@ get '/audio/:file' => sub {
   }
 
   template 'audio_index', { page_title => $files[0]->{title}, files => \@files };
+};
+
+get '/meeting/:id' => sub {
+  template 'meeting', { topic => params->{id} };
 };
 
 true;
