@@ -1,12 +1,63 @@
 body {
     font-family: Lucida,sans-serif;
     color: #fff;
-    background-color: #335566;
+    background-color: #AEAEAE;
+}
+
+#header {
+  background-color: #939393;
+  width: 98%;
+  margin: auto;
+  padding: 10px;
+  height: 60px;
+}
+
+#header h1 {
+  margin-bottom: 10px;
+}
+
+#nav {
+    float: right;
+}
+
+#nav a {
+    text-decoration: none;
+}
+
+#top-menu {
+  background-color: #13959B;
+  width: 98%;
+  margin: auto;
+  padding: 10px;
+  height: 20px;
+  border-top: 2px solid #FFFFFF
+}
+
+#bottom-menu {
+  background-color: #13959B;
+  width: 98%;
+  margin: auto;
+  padding: 10px;
+  height: 20px;
+  border-top: 2px solid #FFFFFF
+}
+
+#container {
+  background-color: #BEBEBE;
+  width: 98%;
+  padding: 10px;
+  margin: auto;
+}
+
+#content {
+    margin: auto;
+    width: 1024px;
+  color: #
 }
 
 .post {
     color: #000;
-    background-color: #99ccdd;
+    background-color: #FFFFFF;
     padding: 1em;
     margin: 1em;
     padding-top: 0.5em;
@@ -14,7 +65,7 @@ body {
 
 .audio {
     color: #000;
-    background-color: #99ccdd;
+    background-color: #FFFFFF;
     padding: 1em;
     margin: 1em;
     padding-top: 0.5em;
@@ -50,39 +101,39 @@ img {
 }
 
 a {
-    color: #002233;
+    color: #2A535B;
 }
 
 h1 {
-    color: #ee4422;
+    color: #4B4B4B;
 }
 
 h1 a {
-    color: #ee4422;
+    color: #4B4B4B;
 }
 
 h2 {
-    color: #ee4422;
+    color: #2A535B;
 }
 
 h2 a {
-    color: #ee4422;
+    color: #2A535B;
 }
 
 h3 {
-    color: #ee4422;
+    color: #2A535B;
 }
 
 h3 a {
-    color: #ee4422;
+    color: #2A535B;
 }
 
 h4 {
-    color: #ee4422;
+    color: #2A535B;
 }
 
 h4 a {
-    color: #ee4422;
+    color: #2A535B;
 }
 
 footer {
@@ -94,18 +145,9 @@ footer {
 }
 
 footer a {
-    color: #ee4422;
+    color: #2A535B;
 }
 
-
-#nav {
-    float: right;
-}
-
-#nav a {
-    text-decoration: none;
-    color: #ee4422;
-}
 
 pre {
     font-family: \"lucida console\",\"monaco\",\"andale mono\",\"bitstream vera sans mono\",\"consolas\",monospace;

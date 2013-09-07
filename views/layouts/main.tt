@@ -1,26 +1,34 @@
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
-<title>[% page_title %] &mdash; pullingshots</title>
+<title>[% page_title %] &mdash; Concordia Chorus</title>
 <link rel="stylesheet" href="/css/style.css" />
 <link rel="stylesheet" href="/css/prettify.css" />
-<script type="javascrip" src"/js/prettify.js"></script>
-<link rel="alternate" type="application/atom+xml" title="Atom Feed" href="http://pullingshots.ca/atom" />
+<script type="javascript" src"/js/prettify.js"></script>
+<link rel="alternate" type="application/atom+xml" title="Atom Feed" href="http://concordiachorus.baerg.ca/atom" />
 <meta charset=UTF-8" />
 </head>
 <body>
+<div id="header">
 <span id="nav">
-  <a href="/images/">images</a> |
+  <a href="/images/">photos</a> |
   <a href="/audio/">audio</a> |
   <a href="/atom">feed</a> |
-  <a href="mailto:andrew.baerg@gmail.com">contact</a>
+  <a href="mailto:lisa.baerg@gmail.com">contact</a>
 </span>
-<h1><a style="text-decoration: none;" href="/">pullingshots</a></h1>
+<h1><img src="/images/logo.png" height="25px" /> <a style="text-decoration: none;" href="/">Concordia Chorus</a></h1>
+</div>
+<div id="top-menu">
+</div>
+<div id="container">
 <div id="content">
 [% content %]
 </div>
+</div>
+<div id="bottom-menu">
+</div>
 <footer>
-Powered by <a href="http://perldancer.org/">Dancer</a> 1.3072
+Powered by <a href="http://perldancer.org/">Dancer</a>
 </footer>
 </body>
 </html>

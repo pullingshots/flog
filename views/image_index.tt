@@ -9,7 +9,6 @@
 	<div class='image'>
 		<h4><a style="text-decoration: none;" href="/images/[% image.slug %]">[% image.title %]</a></h4>
 		[% image.html %]
-		<p class='image-sig'><i>posted at [% image.updated %] by [% image.who %]</i></p>
 	</div>
 [% END %]
 </div>

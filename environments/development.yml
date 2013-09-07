@@ -2,4 +2,4 @@ log: "debug"
 warnings: 1
 show_errors: 1
 auto_reload: 0
-port: 3001
+port: 5001

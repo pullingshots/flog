@@ -217,7 +217,6 @@ sub audio {
   }
 
   foreach (@posts) {
-    if ($_->{info}->title()) {
 	    $_->{prefix} = '/audio/';
 	    $_->{title} = $_->{filename};
 	    $_->{title} =~ s/\.\w+$//;
@@ -234,7 +233,6 @@ sub audio {
 	</audio>|;
 	    $_->{html} .= " <a href='/audio/mp3/$mp3' title='download mp3" . $_->{title} . "'><img width='24' height='24' src='/images/dl_icon.png' /></a><br />";
 	    $_->{html} .= qq|<strong><i>$title</i></strong> by <strong><i>$artist</i></strong> from the album <strong><i>$album</i></strong></p>|;
-    }
   }
 
   sort { $b->{updated} <=> $a->{updated} } @posts
@@ -269,12 +267,12 @@ get qr{/(rdf|atom).*} => sub {
   my $updated = DateTime->from_epoch( epoch => $dir->stat->mtime );
   my $uuid = new Data::UUID;
   my $feed = XML::Atom::SimpleFeed->new(
-     title   => 'pullingshots',
-     link    => 'http://pullingshots.ca/',
-     link    => { rel => 'self', href => 'http://pullingshots.ca/atom', },
+     title   => 'Concordia Chorus',
+     link    => 'http://concordiachorus.baerg..ca/',
+     link    => { rel => 'self', href => 'http://concordiachorus.baerg.ca/atom', },
      updated => $fa->format_datetime($updated),
-     author  => 'Andrew Baerg',
-     id      => 'urn:uuid:' . $uuid->create_from_name_str(NameSpace_URL, "pullingshots.ca"),
+     author  => 'Lisa Baerg',
+     id      => 'urn:uuid:' . $uuid->create_from_name_str(NameSpace_URL, "concordiachorus.baerg.ca"),
   );
 
   foreach (sort { $b->{updated} <=> $a->{updated} } @posts, @images, @audio) {
@@ -309,14 +307,14 @@ get '/rss' => sub {
   my $uuid = new Data::UUID;
 
   my $rss = XML::RSS->new (version => '2.0');
-  $rss->channel(title          => 'pullingshots',
-               link           => 'http://pullingshots.ca',
+  $rss->channel(title          => 'Concordia Chorus',
+               link           => 'http://concordiachorus.baerg.ca',
                language       => 'en',
                description    => 'Enjoy!',
                pubDate        => $fa->format_datetime($updated),
                lastBuildDate  => $fa->format_datetime($updated),
-               managingEditor => 'andrew@pullingshots.ca',
-               webMaster      => 'andrew@pullingshots.ca'
+               managingEditor => 'lisa.baerg@gmail.com',
+               webMaster      => 'andrew.baerg@gmail.com'
                );
 
   foreach (sort { $b->{updated} <=> $a->{updated} } @images) {
