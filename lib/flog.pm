@@ -229,13 +229,13 @@ sub audio {
 	    $_->{slug} = $_->{title};
 	    $_->{slug} =~ s/\s/_/g;
 	    $_->{slug} = uri_encode($_->{slug}, true);
-	    my ($artist, $album, $title) = ($_->{info}->artist(), $_->{info}->album(), $_->{info}->title());
+	    my ($artist, $album, $title) = ($_->{info}->artist() || 'Unknown', $_->{info}->album() || 'Unknown', $_->{info}->title() || 'Unknown');
 	    $_->{html} = qq|<p>
 	<audio controls preload="none">
 	  <source src="/audio/ogg/$ogg" />
 	  <source src="/audio/mp3/$mp3" />
 	</audio>|;
-	    $_->{html} .= " <a href='/audio/mp3/$mp3' title='download mp3" . $_->{title} . "'><img width='24' height='24' src='/images/dl_icon.png' /></a><br />";
+	    $_->{html} .= " <a href='/audio/mp3/$mp3' title='download mp3" . $_->{title} . "'><img id='audio-download' width='24' height='24' src='/images/dl_icon.png' /></a><br />";
 	    $_->{html} .= qq|<strong><i>$title</i></strong> by <strong><i>$artist</i></strong> from the album <strong><i>$album</i></strong></p>|;
   }
 
@@ -266,7 +266,7 @@ get qr{/(rdf|atom).*} => sub {
   my @images = images;
   my @audio = audio;
   my $fa = DateTime::Format::Atom->new();
-  my $dir = File::Fu->dir(config->{postsdir} . '/public/posts/');
+  my $dir = File::Fu->dir(config->{postsdir});
   return unless $dir->e;
 
   my $updated = DateTime->from_epoch( epoch => $dir->stat->mtime );
@@ -276,7 +276,7 @@ get qr{/(rdf|atom).*} => sub {
      link    => 'http://' . config->{domain} . '/',
      link    => { rel => 'self', href => 'http://' . config->{domain}, },
      updated => $fa->format_datetime($updated),
-     author  => config->{author},
+     author  => config->{author} || 'Unknown',
      id      => 'urn:uuid:' . $uuid->create_from_name_str(NameSpace_URL, config->{domain}),
   );
 
@@ -306,7 +306,7 @@ get '/rss' => sub {
   my @images = images;
   my @audio = audio;
   my $fa = DateTime::Format::RSS->new();
-  my $dir = File::Fu->dir(config->{postsdir} . '/public/posts/');
+  my $dir = File::Fu->dir(config->{postsdir});
   return unless $dir->e;
 
   my $updated = DateTime->from_epoch( epoch => $dir->stat->mtime );
