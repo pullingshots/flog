@@ -1,6 +1,5 @@
-package pullingshots;
+package flog;
 use Dancer ':syntax';
-use Dancer::Plugin::Database;
 
 our $VERSION = '0.1';
 
@@ -10,7 +9,9 @@ sub posts {
   use Text::Markdown 'markdown';
   use URI::Encode qw(uri_encode uri_decode);
 
-  my $dir = File::Fu->dir(config->{appdir} . '/public/posts/');
+  my $dir = File::Fu->dir(config->{postsdir} . '/');
+  return unless $dir->e;
+
   my @files;
 
   my $fn = shift;
@@ -64,11 +65,12 @@ sub images {
   my $dir;
   if ($subdir) {
     $prefix = $subdir . ' ';
-    $dir = File::Fu->dir(config->{appdir} . '/public/posts/images/' . $subdir . '/');
+    $dir = File::Fu->dir(config->{postsdir} . '/images/' . $subdir . '/');
   }
   else {
-    $dir = File::Fu->dir(config->{appdir} . '/public/posts/images/');
+    $dir = File::Fu->dir(config->{postsdir} . '/images/');
   }
+  return unless $dir->e;
 
   my @files;
 
@@ -169,7 +171,9 @@ sub audio {
 
   use Music::Tag;
 
-  my $dir = File::Fu->dir(config->{appdir} . '/public/posts/audio/');
+  my $dir = File::Fu->dir(config->{postsdir} . '/audio/');
+  return unless $dir->e;
+
   my @files;
 
   my $fn = shift;
@@ -242,14 +246,14 @@ get '/' => sub {
 
   my @posts = posts;
 
-  template 'index', { page_title => 'Enjoy!', posts => \@posts };
+  template 'index', { page_title => 'Home', posts => \@posts };
 };
 
 get qr{/index.*} => sub {
 
   my @posts = posts;
 
-  template 'index', { page_title => 'Enjoy!', posts => \@posts };
+  template 'index', { page_title => 'Home', posts => \@posts };
 };
 
 get qr{/(rdf|atom).*} => sub {
@@ -262,17 +266,18 @@ get qr{/(rdf|atom).*} => sub {
   my @images = images;
   my @audio = audio;
   my $fa = DateTime::Format::Atom->new();
-  my $dir = File::Fu->dir(config->{appdir} . '/public/posts/');
+  my $dir = File::Fu->dir(config->{postsdir} . '/public/posts/');
+  return unless $dir->e;
 
   my $updated = DateTime->from_epoch( epoch => $dir->stat->mtime );
   my $uuid = new Data::UUID;
   my $feed = XML::Atom::SimpleFeed->new(
-     title   => 'Concordia Chorus',
-     link    => 'http://concordiachorus.baerg..ca/',
-     link    => { rel => 'self', href => 'http://concordiachorus.baerg.ca/atom', },
+     title   => config->{appname},
+     link    => 'http://' . config->{domain} . '/',
+     link    => { rel => 'self', href => 'http://' . config->{domain}, },
      updated => $fa->format_datetime($updated),
-     author  => 'Lisa Baerg',
-     id      => 'urn:uuid:' . $uuid->create_from_name_str(NameSpace_URL, "concordiachorus.baerg.ca"),
+     author  => config->{author},
+     id      => 'urn:uuid:' . $uuid->create_from_name_str(NameSpace_URL, config->{domain}),
   );
 
   foreach (sort { $b->{updated} <=> $a->{updated} } @posts, @images, @audio) {
@@ -301,20 +306,21 @@ get '/rss' => sub {
   my @images = images;
   my @audio = audio;
   my $fa = DateTime::Format::RSS->new();
-  my $dir = File::Fu->dir(config->{appdir} . '/public/posts/');
+  my $dir = File::Fu->dir(config->{postsdir} . '/public/posts/');
+  return unless $dir->e;
 
   my $updated = DateTime->from_epoch( epoch => $dir->stat->mtime );
   my $uuid = new Data::UUID;
 
   my $rss = XML::RSS->new (version => '2.0');
-  $rss->channel(title          => 'Concordia Chorus',
-               link           => 'http://concordiachorus.baerg.ca',
+  $rss->channel(title          => config->{appname},
+               link           => 'http://' . config->{domain},
                language       => 'en',
-               description    => 'Enjoy!',
+               description    => config->{tagline},
                pubDate        => $fa->format_datetime($updated),
                lastBuildDate  => $fa->format_datetime($updated),
-               managingEditor => 'lisa.baerg@gmail.com',
-               webMaster      => 'andrew.baerg@gmail.com'
+               managingEditor => config->{author_email},
+               webMaster      => config->{admin_email}
                );
 
   foreach (sort { $b->{updated} <=> $a->{updated} } @images) {
@@ -342,21 +348,21 @@ get '/images/' => sub {
 
   my @images = images('', '200');
 
-  template 'image_index', { page_title => 'Look', images => \@images, res => '200' };
+  template 'image_index', { page_title => 'Images', images => \@images, res => '200' };
 };
 
 get '/images/:dir/' => sub {
 
   my @images = images('', '200', params->{dir});
 
-  template 'image_index', { page_title => 'Look', images => \@images, res => '200' };
+  template 'image_index', { page_title => params->{dir}, images => \@images, res => '200' };
 };
 
 get '/audio/' => sub {
 
   my @files = audio;
 
-  template 'audio_index', { page_title => 'Listen', files => \@files };
+  template 'audio_index', { page_title => 'Audio', files => \@files };
 };
 
 get '/:post' => sub {

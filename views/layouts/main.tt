@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
-<title>[% page_title %] &mdash; Concordia Chorus</title>
+<title>[% page_title %] &mdash; [% settings.appname %]</title>
 <link rel="stylesheet" href="/css/style.css" />
 <link rel="stylesheet" href="/css/prettify.css" />
 <script type="javascript" src"/js/prettify.js"></script>
-<link rel="alternate" type="application/atom+xml" title="Atom Feed" href="http://concordiachorus.baerg.ca/atom" />
+<link rel="alternate" type="application/atom+xml" title="Atom Feed" href="http://[% settings.domain %]/atom" />
 <meta charset=UTF-8" />
 </head>
 <body>
@@ -14,9 +14,9 @@
   <a href="/images/">photos</a> |
   <a href="/audio/">audio</a> |
   <a href="/atom">feed</a> |
-  <a href="mailto:lisa.baerg@gmail.com">contact</a>
+  <a href="mailto:[% settings.email %]">contact</a>
 </span>
-<h1><img src="/images/logo.png" height="25px" /> <a style="text-decoration: none;" href="/">Concordia Chorus</a></h1>
+<h1><img id="logo" src="/images/logo.png" /> <a style="text-decoration: none;" href="/">[% settings.appname %]</a></h1>
 </div>
 <div id="top-menu">
 </div>

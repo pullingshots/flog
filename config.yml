@@ -1,8 +1,8 @@
 layout: "main"
 template: "tiny"
 logger: "file"
-appname: "pullingshots"
-plugins:
-        Database:
-            driver: 'SQLite'
-            database: 'pullingshots.db'
+appname: "flog"
+tagline: "A File-based Blog written in Perl using Dancer"
+postsdir: "/path/to/blog/posts"
+domain: "domain.com"
+email: "you@domain.com"

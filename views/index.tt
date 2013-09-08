@@ -1,16 +1,5 @@
 <div class='post'>
-<center><img src='/images/sheet-music.png' /></center><br />
-Do you enjoy singing? Do you miss singing in harmony with other people?<br />
-If so, then The Concordia Chorus is looking for you!<br />
-<br />
-Concordia Chorus is a brand new choir starting in September 2013. We are going back to our roots
-and singing beautiful four part harmony from a wide variety of musical styles. Our mission is to 
-have fun singing great music together, and to praise God with our voices while putting forth our
-best efforts. Concordia will be practicing <strong>Monday evenings at Dalhousie Community Church from 7:30pm-9pm</strong>
-starting on September 16th, 2013. There will be two performances to look forward to &mdash; one in early December and one in May 2014.
-This chorus is run by volunteers and since we are not connected to any one church in particular,
-an annual membership fee of $25 per person will be required to pay for the music and paper.
-Some previous choir experience is recommended.
+[% settings.tagline %]
 </div>
 [% FOREACH post IN posts %]
 <div class='post'>
